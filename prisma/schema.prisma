@@ -1,0 +1,143 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["multiSchema"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+  schemas   = ["user_schema","team_schema","task_schema","public"]
+}
+
+model user_table {
+  user_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  user_email String @unique
+  user_first_name String
+  user_last_name String
+  user_created_at DateTime @default(now())
+  user_active_team String
+  user_avatar_url String
+
+  notification_table notification_table[]
+  @@schema("user_schema")
+}
+
+model team_table {
+  team_id String  @id @default(dbgenerated("uuid_generate_v4()"))
+  team_name String
+  team_created_at DateTime @default(now())
+
+  team_member_table team_member_table[]
+  @@schema("team_schema")
+}
+
+model notification_table {
+  notification_id String @id @default(cuid())
+  notification_created_at DateTime @default(now())
+  notification_details String
+  notification_url String
+  notification_user_id String
+
+  user_table user_table @relation(fields: [notification_user_id], references: [user_id])
+  @@schema("public")
+}
+
+model team_member_table {
+  team_member_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  team_member_created_at DateTime @default(now())
+  team_member_role String
+  team_member_user_id String
+  team_member_team_id String
+
+  team_table team_table @relation(fields: [team_member_team_id], references: [team_id])
+  task_assignee_table task_assignee_table[]
+  time_tracking_table time_tracking_table[]
+  @@schema("team_schema")
+}
+
+model time_tracking_table {
+  time_tracking_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  time_tracking_created_at DateTime @default(now())
+  time_tracking_type String
+  time_tracking_time DateTime
+  time_tracking_duration Int
+  time_tracking_team_member_id String
+
+  team_member_table team_member_table @relation(fields: [time_tracking_team_member_id], references: [team_member_id])
+  @@schema("team_schema")
+}
+
+model task_table {
+  task_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  task_created_at DateTime @default(now())
+  task_updated_at DateTime @updatedAt
+  task_title String
+  task_description String
+  task_priority String
+  task_status String
+  task_due_date DateTime
+
+  sub_task_table sub_task_table[]
+  task_comment_table task_comment_table[]
+  task_attachment_table task_attachment_table[]
+  @@schema("task_schema")
+}
+
+model sub_task_table {
+  sub_task_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  sub_task_created_at DateTime @default(now())
+  sub_task_title String
+  sub_task_description String
+  sub_task_priority String
+  sub_task_status String
+  sub_task_due_date DateTime
+  sub_task_task_id String
+
+  task_table task_table @relation(fields: [sub_task_task_id], references: [task_id])
+  @@schema("task_schema")
+}
+
+model task_assignee_table {
+  task_assignee_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  task_assignee_team_member_id String
+  task_assignee_task_id String
+
+  team_member_table team_member_table @relation(fields: [task_assignee_team_member_id], references: [team_member_id])
+  @@schema("task_schema")
+}
+
+model task_comment_table {
+  task_comment_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  task_comment_created_at DateTime @default(now())
+  task_comment_content String
+  task_comment_task_id String
+
+  task_table task_table @relation(fields: [task_comment_task_id], references: [task_id])
+  @@schema("task_schema")
+}
+
+model task_attachment_table {
+  task_attachment_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  task_attachment_created_at DateTime @default(now())
+  task_attachment_file_name String
+  task_attachment_file_url String
+  task_attachment_task_id String
+
+  task_table task_table @relation(fields: [task_attachment_task_id], references: [task_id])
+  @@schema("task_schema")
+}
+
+model task_status_table {
+  task_status_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  task_status_created_at DateTime @default(now())
+  task_status_name String
+  task_status_color String
+  @@schema("task_schema")
+}
