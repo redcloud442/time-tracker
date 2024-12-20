@@ -1,6 +1,7 @@
 "use client";
 
-import { AppShell, Button, Group, Text } from "@mantine/core";
+import { AppShell, AspectRatio, Button, Group, Image } from "@mantine/core";
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 
 const Header = () => {
@@ -8,11 +9,14 @@ const Header = () => {
   const pathname = usePathname();
   return (
     <AppShell.Header>
-      <Group justify="space-between" h="100%" px="md">
-        <Group>
-          <Text>Logo Here</Text>
-        </Group>
-        <Group>
+      <Group justify="space-between" align="center" h="100%" px="md">
+        <Link href="/auth/login">
+          <AspectRatio ratio={80 / 20} w={140} h={35}>
+            <Image src={"/timeleap.svg"} alt="logo" />
+          </AspectRatio>
+        </Link>
+
+        <Group align="start">
           {pathname !== "/auth/login" && (
             <Button onClick={() => router.push("/auth/login")}>Login</Button>
           )}

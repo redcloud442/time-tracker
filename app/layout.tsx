@@ -1,11 +1,19 @@
-import "@mantine/core/styles.css";
-import React from "react";
+import { RouterTransition } from "@/components/RouterTransition/RouterTransition";
 import {
-  MantineProvider,
   ColorSchemeScript,
+  Loader,
   mantineHtmlProps,
+  MantineProvider,
 } from "@mantine/core";
+import "@mantine/core/styles.css";
+import { ModalsProvider } from "@mantine/modals";
+import { Notifications } from "@mantine/notifications";
+import "@mantine/notifications/styles.css";
+import "@mantine/nprogress/styles.css";
+import "mantine-datatable/styles.layer.css";
+import { Suspense } from "react";
 import { theme } from "../theme";
+import "./layout.css";
 
 export const metadata = {
   title: "Mantine Next.js template",
@@ -24,7 +32,13 @@ export default function RootLayout({ children }: { children: any }) {
         />
       </head>
       <body>
-        <MantineProvider theme={theme}>{children}</MantineProvider>
+        <MantineProvider theme={theme}>
+          <ModalsProvider>
+            <Notifications />
+            <RouterTransition />
+            <Suspense fallback={<Loader />}>{children}</Suspense>
+          </ModalsProvider>
+        </MantineProvider>
       </body>
     </html>
   );

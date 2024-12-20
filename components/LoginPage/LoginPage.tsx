@@ -1,11 +1,14 @@
 "use client";
 
+import { loginSubmission } from "@/services/Auth/Auth";
+import { escapeFormData } from "@/utils/helper";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   AspectRatio,
   Button,
   Container,
   Divider,
+  em,
   Flex,
   Paper,
   PasswordInput,
@@ -14,7 +17,10 @@ import {
   TextInput,
   Title,
 } from "@mantine/core";
+import { useMediaQuery } from "@mantine/hooks";
+import { notifications } from "@mantine/notifications";
 import { IconBrandGoogle } from "@tabler/icons-react";
+import { useRouter } from "next/navigation";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import AuthLogo from "../../public/AuthLogo";
@@ -27,6 +33,9 @@ const loginSchema = z.object({
 type LoginFormData = z.infer<typeof loginSchema>;
 
 const LoginPage = () => {
+  const router = useRouter();
+  const isMobile = useMediaQuery(`(max-width: ${em(750)})`);
+
   const {
     control,
     handleSubmit,
@@ -35,29 +44,51 @@ const LoginPage = () => {
     resolver: zodResolver(loginSchema),
   });
 
-  const onSubmit = (data: LoginFormData) => {
+  const onSubmit = async (data: LoginFormData) => {
     try {
-    } catch (e) {}
+      const escapedData = escapeFormData(data);
+      const response = await loginSubmission(
+        escapedData.email,
+        escapedData.password
+      );
+
+      notifications.show({
+        title: "Login successful",
+        message: response.message,
+        color: "green",
+      });
+      router.push(response.redirect);
+    } catch (e) {
+      notifications.show({
+        title: "Login failed",
+        message: "Please try again",
+        color: "red",
+      });
+    }
   };
 
   return (
-    <Container size="md" h="100vh">
+    <Container size="md" h="70vh">
       <Flex justify="center" align="center" h="100%">
-        <Paper withBorder p="xl" radius="md" w="100%" maw={1000}>
+        <Paper shadow="sm" withBorder p="xl" radius="md" w="100%" maw={1000}>
           <Flex align="center" gap="xl">
-            <Stack w="50%">
-              <AspectRatio ratio={1} h={400} maw={500}>
-                <AuthLogo />
-              </AspectRatio>
-              <Title order={2} ta="center">
-                Track Time Easily
-              </Title>
-              <Text ta="center">
-                Manage your tasks efficiently with our intuitive time-tracking
-                tools.
-              </Text>
-            </Stack>
-            <Divider orientation="vertical" />
+            {!isMobile ? (
+              <>
+                <Stack w="50%" h="100%">
+                  <AspectRatio ratio={1} h={400} maw={500}>
+                    <AuthLogo />
+                  </AspectRatio>
+                  <Title order={2} ta="center">
+                    Track Time Easily
+                  </Title>
+                  <Text ta="center">
+                    Manage your tasks efficiently with our intuitive
+                    time-tracking tools.
+                  </Text>
+                </Stack>
+                <Divider orientation="vertical" />
+              </>
+            ) : null}
 
             <Stack w="50%">
               <Title order={3} mb="md">
@@ -93,13 +124,10 @@ const LoginPage = () => {
                       />
                     )}
                   />
-
                   <Button type="submit" fullWidth mt="lg">
                     Login
                   </Button>
-
                   <Divider label="OR" labelPosition="center" />
-
                   <Button
                     leftSection={<IconBrandGoogle color="orange" />}
                     variant="outline"

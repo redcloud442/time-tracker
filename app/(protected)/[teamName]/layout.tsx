@@ -1,9 +1,9 @@
 "use client";
 
+import Header from "@/components/Layout/AppLayout/Header";
 import { AppShell, Skeleton } from "@mantine/core";
 import "@mantine/core/styles.css";
 import { useDisclosure } from "@mantine/hooks";
-import Header from "../../components/Layout/AppLayout/Header";
 
 export default function AppLayout({ children }: { children: any }) {
   const [opened] = useDisclosure();

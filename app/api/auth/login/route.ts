@@ -19,7 +19,7 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({
+  const { error } = await supabaseClient.auth.signInWithPassword({
     email: email,
     password: password,
   });
@@ -31,5 +31,29 @@ export const POST = async (req: NextRequest) => {
     );
   }
 
-  return NextResponse.json({ message: "Login successful" }, { status: 200 });
+  const userData = await prisma.user_table.findUnique({
+    where: {
+      user_email: email,
+    },
+  });
+
+  if (user.user_type === "ONBOARDING") {
+    return NextResponse.json(
+      { redirect: "/user/onboarding", message: "Login successful" },
+      { status: 404 }
+    );
+  } else {
+    const team = await prisma.team_table.findFirst({
+      where: {
+        team_id: userData?.user_active_team ?? undefined,
+      },
+    });
+
+    const teamName = team?.team_name.toLowerCase().replace(/\s+/g, "-");
+
+    return NextResponse.json(
+      { redirect: `/${teamName}`, message: "Login successful" },
+      { status: 200 }
+    );
+  }
 };

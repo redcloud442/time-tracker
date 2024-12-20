@@ -5,10 +5,9 @@
     "prettier"
   ],
   "rules": {
-    "prefer-const": "error",
+    "prefer-const": "warn",
     "@typescript-eslint/no-unused-vars": "warn",
     "@typescript-eslint/no-explicit-any": "error",
-    "@typescript-eslint/consistent-type-definitions": ["error", "type"],
     "@typescript-eslint/no-var-requires": "warn"
   }
 }

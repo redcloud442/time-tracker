@@ -19,11 +19,12 @@ datasource db {
 model user_table {
   user_id String @id @default(dbgenerated("uuid_generate_v4()"))
   user_email String @unique
-  user_first_name String
-  user_last_name String
+  user_first_name String?
+  user_last_name String?
   user_created_at DateTime @default(now())
-  user_active_team String
-  user_avatar_url String
+  user_type String
+  user_active_team String?
+  user_avatar_url String?
 
   notification_table notification_table[]
   @@schema("user_schema")
@@ -59,6 +60,15 @@ model team_member_table {
   team_table team_table @relation(fields: [team_member_team_id], references: [team_id])
   task_assignee_table task_assignee_table[]
   time_tracking_table time_tracking_table[]
+  @@schema("team_schema")
+}
+
+model team_member_request_table {
+  team_member_request_id String @id @default(dbgenerated("uuid_generate_v4()"))
+  team_member_request_created_at DateTime @default(now())
+  team_member_request_user_id String
+  team_member_request_team_id String
+  team_member_request_status String
   @@schema("team_schema")
 }
 
