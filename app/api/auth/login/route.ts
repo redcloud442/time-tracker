@@ -40,7 +40,12 @@ export const POST = async (req: NextRequest) => {
   if (user.user_type === "ONBOARDING") {
     return NextResponse.json(
       { redirect: "/user/onboarding", message: "Login successful" },
-      { status: 404 }
+      { status: 200 }
+    );
+  } else if (user.user_type === "PENDING REQUEST") {
+    return NextResponse.json(
+      { redirect: "/user", message: "Login successful" },
+      { status: 200 }
     );
   } else {
     const team = await prisma.team_table.findFirst({

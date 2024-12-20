@@ -20,6 +20,13 @@ export const POST = async (req: NextRequest) => {
     const { userProfile } = await serverProtectionMember();
     const file = avatar as File;
 
+    if (userProfile.user_type === "PENDING REQUEST") {
+      return NextResponse.json(
+        { message: "You are already onboarded" },
+        { status: 400 }
+      );
+    }
+
     if (avatar) {
       const filePath = `uploads/${Date.now()}_${file.name}`;
 
@@ -47,6 +54,7 @@ export const POST = async (req: NextRequest) => {
           user_first_name: firstName,
           user_last_name: lastName,
           user_avatar_url: AvatarUrl,
+          user_type: "PENDING REQUEST",
         },
       }),
       prisma.team_member_request_table.create({
